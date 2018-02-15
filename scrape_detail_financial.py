@@ -43,20 +43,21 @@ def scrape_charity_financial(browser, primary_sector, sub_sector, link_id, subse
             browser.execute_script(turn_page)
 
             # pick item
-            hidden_element = browser.find_by_id(
-                'ctl00_PlaceHolderMain_lstSearchResults_ctrl{}_hfViewDetails'.format(item_no)).first
+            hidden_element = browser.find_by_css(
+                '#ctl00_PlaceHolderMain_lstSearchResults_ctrl{}_hfViewDetails'.format(item_no)).first
 
             hidden_link = hidden_element.value
 
             # visit charity profile page
             browser.visit(hidden_link)
 
-            charity_name = browser.find_by_id('ctl00_PlaceHolderMain_LabelOrgName').first.value
+            charity_name = browser.find_by_css('#ctl00_PlaceHolderMain_LabelOrgName').first.value
             print('Name: {}'.format(charity_name))
+            print("------------------------------------------------")
 
             main_data = {
                 'primary_sector': primary_sector,
-                'sub_setor': sub_sector
+                'sub_sector': sub_sector
             }
 
             # capturing main information
@@ -64,7 +65,7 @@ def scrape_charity_financial(browser, primary_sector, sub_sector, link_id, subse
                 main_data[element] = browser.find_by_css(config.LAYOUT_PROFILE_MAPPING[element]).html
 
             # visit financial information section
-            print('Click Financial Information')
+            print('Click Financial Information link')
             browser.click_link_by_href("javascript:__doPostBack('ctl00$PlaceHolderMain$Menu1','1')")
 
             try:
@@ -72,51 +73,58 @@ def scrape_charity_financial(browser, primary_sector, sub_sector, link_id, subse
                 alert = browser.get_alert()
                 alert.accept()
 
-                singpass_input_id = browser.find_by_xpath('//*[@id="loginID"]').first
+                singpass_input_id = browser.find_by_css('#loginID').first
                 if singpass_input_id:
-                    print('SingPass is required, fill in SingPass login and password')
+                    print('SingPass is required, fill in your login and password')
 
-                    browser.find_by_xpath('//*[@id="loginID"]').fill('ryan7san')
-                    browser.find_by_xpath('//*[@id="password"]').fill('1234qwer')
+                    browser.find_by_css('#loginID').fill('ryan7san')
+                    browser.find_by_css('#password').fill('1234qwer')
                     browser.execute_script("doSubmit('login')")
+            except Exception as e:
+                print("No SingPass alert message or you have logged-in to SingPass before")
+                print(e)
 
-                    # visit financial information section again
-                    if browser.is_element_present_by_xpath(
-                            xpath='//*[@id="ctl00_PlaceHolderMain_Menu1n1"]/table/tbody/tr/td/a',
-                            wait_time=180):
-                        print('Re-click Financial Information')
-                        browser.click_link_by_href("javascript:__doPostBack('ctl00$PlaceHolderMain$Menu1','1')")
-                    else:
-                        print('Financial Information link can not be found, retry scraping!')
+            # visit financial information section again
+            if browser.is_element_present_by_xpath(
+                    xpath='//*[@id="ctl00_PlaceHolderMain_Menu1n1"]/table/tbody/tr/td/a',
+                    wait_time=180
+            ):
+                print('Re-click Financial Information link')
+                browser.click_link_by_href("javascript:__doPostBack('ctl00$PlaceHolderMain$Menu1','1')")
 
-            except Exception:
-                print("No SingPass Alert Message")
-
-            time.sleep(3)
-
-            # capturing financial information
-            if browser.is_element_not_present_by_css('#ctl00_PlaceHolderMain_ucFSDetails_tbFSDetails'):
-                print("------------------------------------------------")
-                print("No Financial Information")
-            else:
-                for key in config.LAYOUT_FINANCIAL_MAPPING:
-                    temp_data = copy.deepcopy(main_data)
-                    for sub_key in config.LAYOUT_FINANCIAL_MAPPING[key]:
-                        try:
-                            temp_data[sub_key] = browser.find_by_css(
-                                config.LAYOUT_FINANCIAL_MAPPING[key][sub_key]).first.html
-                        except Exception as e:
-                            temp_data[sub_key] = 0
-
-                    result.append(temp_data)
-
-                if result:
-                    csvfile = "data/output/financial_%s_%s_%s.csv" % (link_id, page_no, item_no)
-                    dataframe = pandas.DataFrame(result)
-                    dataframe.to_csv(csvfile, index=False, header=True)
+                # capturing financial information
+                print("Checking whether 'Financial Summary of past three (3) financial periods' exists or not")
+                if browser.is_element_present_by_xpath(
+                        '//*[@id="ctl00_PlaceHolderMain_ucFSDetails_tbFSDetails"]',
+                        wait_time=10
+                ):
                     print("------------------------------------------------")
-                    print("Finish writing charity financial information")
-                    print("File: %s" % csvfile)
+                    print("Yes, that information does exists")
+                    for key in config.LAYOUT_FINANCIAL_MAPPING:
+                        temp_data = copy.deepcopy(main_data)
+                        for sub_key in config.LAYOUT_FINANCIAL_MAPPING[key]:
+                            try:
+                                temp_data[sub_key] = browser.find_by_css(
+                                    config.LAYOUT_FINANCIAL_MAPPING[key][sub_key]).first.html
+                            except Exception as e:
+                                temp_data[sub_key] = 0
+
+                        result.append(temp_data)
+
+                    if result:
+                        csvfile = "data/output/financial_%s_%s_%s.csv" % (link_id, page_no, item_no)
+                        dataframe = pandas.DataFrame(result)
+                        dataframe.to_csv(csvfile, index=False, header=True)
+                        print("Finish writing charity financial information")
+                        print("File: %s" % csvfile)
+                    else:
+                        print("Can not write empty financial information to file!!!")
+                else:
+                    print("------------------------------------------------")
+                    print("No financial information to be captured")
+
+            else:
+                print('Financial Information link can not be found, retry scraping!')
 
             retry = False
 
@@ -130,6 +138,7 @@ def scrape_charity_financial(browser, primary_sector, sub_sector, link_id, subse
 
 def main():
     print("Start Scraping")
+    browser = Browser("chrome", headless=True)
 
     jobs = []
     for link in links.LINKS:
@@ -141,14 +150,13 @@ def main():
                 'sub_sector': link['sub_sector'],
                 'link_id': link['id'],
                 'href': link['href'],
-                'item_no': (i - 1) % 5,
-                'page_no': page_no
+                'page_no': page_no,
+                'item_no': (i - 1) % 5
             })
             if i % 5 == 0:
                 page_no += 1
 
     for job in jobs:
-        browser = Browser(headless=True)
         scrape_charity_financial(
             browser, job["primary_sector"], job["sub_sector"], job["link_id"], job["href"], job["page_no"],
             job["item_no"])
