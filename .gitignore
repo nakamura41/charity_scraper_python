@@ -4,3 +4,4 @@ data/
 *.csv
 geckodriver.log
 config/singpass.py
+logs/financial.log

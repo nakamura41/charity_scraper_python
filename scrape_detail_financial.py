@@ -4,6 +4,13 @@ import math
 import copy
 import pandas
 import time
+import logging
+
+logging.basicConfig(
+    filename='logs/financial.log',
+    level=logging.INFO,
+    format='%(asctime)s %(message)s'
+)
 
 
 def calculate_page_count(record_number):
@@ -27,12 +34,12 @@ def scrape_charity_financial(browser, primary_sector, sub_sector, link_id, subse
 
     while retry and attempt_no < config.MAX_RETRY_ATTEMPTS:
         try:
-            print("================================================")
-            print("Processing financial information")
-            print("Primary sector %s, sub sector %s" % (primary_sector, sub_sector))
-            print("Page %s, item no %s" % (page_no, item_no))
-            print("Attempt No: %s" % attempt_no)
-            print("================================================")
+            logging.info("================================================")
+            logging.info("Processing financial information")
+            logging.info("Primary sector %s, sub sector %s" % (primary_sector, sub_sector))
+            logging.info("Page %s, item no %s" % (page_no, item_no))
+            logging.info("Attempt No: %s" % attempt_no)
+            logging.info("================================================")
 
             browser.visit(config.START_URL)
 
@@ -52,8 +59,8 @@ def scrape_charity_financial(browser, primary_sector, sub_sector, link_id, subse
             browser.visit(hidden_link)
 
             charity_name = browser.find_by_css('#ctl00_PlaceHolderMain_LabelOrgName').first.value
-            print('Name: {}'.format(charity_name))
-            print("------------------------------------------------")
+            logging.info('Name: {}'.format(charity_name))
+            logging.info("------------------------------------------------")
 
             main_data = {
                 'primary_sector': primary_sector,
@@ -65,7 +72,7 @@ def scrape_charity_financial(browser, primary_sector, sub_sector, link_id, subse
                 main_data[element] = browser.find_by_css(config.LAYOUT_PROFILE_MAPPING[element]).html
 
             # visit financial information section
-            print('Click Financial Information link')
+            logging.info('Click Financial Information link')
             browser.click_link_by_href("javascript:__doPostBack('ctl00$PlaceHolderMain$Menu1','1')")
 
             try:
@@ -75,31 +82,31 @@ def scrape_charity_financial(browser, primary_sector, sub_sector, link_id, subse
 
                 singpass_input_id = browser.find_by_css('#loginID').first
                 if singpass_input_id:
-                    print('SingPass is required, fill in your login and password')
+                    logging.info('SingPass is required, fill in your login and password')
 
                     browser.find_by_css('#loginID').fill(singpass.LOGIN)
                     browser.find_by_css('#password').fill(singpass.PASSWORD)
                     browser.execute_script("doSubmit('login')")
             except Exception as e:
-                print("No SingPass alert message or you have logged-in to SingPass before")
-                print(e)
+                logging.warning("No SingPass alert message or you have logged-in to SingPass before")
+                logging.error(e)
 
             # visit financial information section again
             if browser.is_element_present_by_xpath(
                     xpath='//*[@id="ctl00_PlaceHolderMain_Menu1n1"]/table/tbody/tr/td/a',
                     wait_time=180
             ):
-                print('Re-click Financial Information link')
+                logging.info('Re-click Financial Information link')
                 browser.click_link_by_href("javascript:__doPostBack('ctl00$PlaceHolderMain$Menu1','1')")
 
                 # capturing financial information
-                print("Checking whether 'Financial Summary of past three (3) financial periods' exists or not")
+                logging.info("Checking whether 'Financial Summary of past three (3) financial periods' exists or not")
                 if browser.is_element_present_by_xpath(
                         '//*[@id="ctl00_PlaceHolderMain_ucFSDetails_tbFSDetails"]',
                         wait_time=10
                 ):
-                    print("------------------------------------------------")
-                    print("Yes, that information does exists")
+                    logging.info("------------------------------------------------")
+                    logging.info("Yes, that information does exists")
                     for key in config.LAYOUT_FINANCIAL_MAPPING:
                         temp_data = copy.deepcopy(main_data)
                         for sub_key in config.LAYOUT_FINANCIAL_MAPPING[key]:
@@ -115,21 +122,21 @@ def scrape_charity_financial(browser, primary_sector, sub_sector, link_id, subse
                         csvfile = "data/output/financial_%s_%s_%s.csv" % (link_id, page_no, item_no)
                         dataframe = pandas.DataFrame(result)
                         dataframe.to_csv(csvfile, index=False, header=True)
-                        print("Finish writing charity financial information")
-                        print("File: %s" % csvfile)
+                        logging.info("Finish writing charity financial information")
+                        logging.info("File: %s" % csvfile)
                     else:
-                        print("Can not write empty financial information to file!!!")
+                        logging.info("Can not write empty financial information to file!!!")
                 else:
-                    print("------------------------------------------------")
-                    print("No financial information to be captured")
+                    logging.warning("------------------------------------------------")
+                    logging.warning("No financial information to be captured")
 
             else:
-                print('Financial Information link can not be found, retry scraping!')
+                logging.warning('Financial Information link can not be found, retry scraping!')
 
             retry = False
 
         except Exception as e:
-            print(e)
+            logging.error(e)
 
         attempt_no += 1
 
@@ -137,7 +144,7 @@ def scrape_charity_financial(browser, primary_sector, sub_sector, link_id, subse
 
 
 def main():
-    print("Start Scraping")
+    logging.info("Start Scraping")
     browser = Browser("chrome", headless=True)
 
     jobs = []
@@ -163,7 +170,7 @@ def main():
 
         time.sleep(8)
 
-    print("Scraping Done")
+    logging.info("Scraping Done")
 
 
 main()
