@@ -7,8 +7,7 @@ sudo apt-get install python3-pip
 ```
 2. Install Dependencies
 ```
-sudo pip3 install splinter
-sudo pip3 install pandas
+pip3 install -r requirements.txt
 ```
 3. Install Chromedriver
 ```

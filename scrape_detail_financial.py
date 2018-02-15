@@ -1,5 +1,5 @@
 from splinter import Browser
-from config import config, links
+from config import config, links, singpass
 import math
 import copy
 import pandas
@@ -77,8 +77,8 @@ def scrape_charity_financial(browser, primary_sector, sub_sector, link_id, subse
                 if singpass_input_id:
                     print('SingPass is required, fill in your login and password')
 
-                    browser.find_by_css('#loginID').fill('ryan7san')
-                    browser.find_by_css('#password').fill('1234qwer')
+                    browser.find_by_css('#loginID').fill(singpass.LOGIN)
+                    browser.find_by_css('#password').fill(singpass.PASSWORD)
                     browser.execute_script("doSubmit('login')")
             except Exception as e:
                 print("No SingPass alert message or you have logged-in to SingPass before")
