@@ -1,6 +1,5 @@
 from splinter import Browser
 from config import config, links, singpass
-import math
 import copy
 import pandas
 import time
@@ -11,18 +10,6 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s %(message)s'
 )
-
-
-def calculate_page_count(record_number):
-    return math.ceil(record_number / config.CHARITIES_PER_PAGE)
-
-
-def get_target_link(pageNo):
-    # charities.gov.sg has a very weird pagination system (1 => 16 => 26 => ...) ???
-    return "#a${pageNo}" if pageNo != 1 else ''
-
-
-hidden_link = 'https://www.charities.gov.sg/_layouts/MCYSCPSearch/MCYSCPSearchOrgProfile.aspx?AccountId=ZTk3MzY2MTktN2I2NS1lMzExLTgyZGItMDA1MDU2YjMwNDg0'
 
 
 def scrape_charity_financial(browser, primary_sector, sub_sector, link_id, subsector_link, page_no, item_no):
@@ -151,6 +138,13 @@ def main():
     for link in links.LINKS:
         page_no = 1
 
+        # use this code to restart from the specific category and page no
+        # ******************** in case of emergency *********************
+        # if link['id'] == 'hea15':
+        #     page_no = 5
+        #     link['record_count'] -= page_no * config.CHARITIES_PER_PAGE
+        # ******************** in case of emergency *********************
+
         for i in range(1, link['record_count']):
             jobs.append({
                 'primary_sector': link['primary_sector'],
@@ -158,9 +152,9 @@ def main():
                 'link_id': link['id'],
                 'href': link['href'],
                 'page_no': page_no,
-                'item_no': (i - 1) % 5
+                'item_no': (i - 1) % config.CHARITIES_PER_PAGE
             })
-            if i % 5 == 0:
+            if i % config.CHARITIES_PER_PAGE == 0:
                 page_no += 1
 
     for job in jobs:
