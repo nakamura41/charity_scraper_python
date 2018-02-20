@@ -10,10 +10,9 @@ LAYOUT_PROFILE_MAPPING = {
 
 LAYOUT_FINANCIAL_MAPPING = {
     'fy1': {
-        'financial_period': '#ctl00_PlaceHolderMain_gvFinancialInformation > tbody > tr:nth-child(2) > td:nth-child(1)',
-        'receipts_total': '#ctl00_PlaceHolderMain_gvFinancialInformation > tbody > tr:nth-child(2) > td:nth-child(2)',
-        'expenses_total': '#ctl00_PlaceHolderMain_gvFinancialInformation > tbody > tr:nth-child(2) > td:nth-child(3)',
-        'financial_status': '#ctl00_PlaceHolderMain_gvFinancialInformation > tbody > tr:nth-child(2) > td:nth-child(5)',
+        'financial_period': '#ctl00_PlaceHolderMain_ucFSDetails_fy_period_2_0',
+        'receipts_total': '#ctl00_PlaceHolderMain_ucFSDetails_income_total_2',
+        'expenses_total': '#ctl00_PlaceHolderMain_ucFSDetails_expenses_total_2',
         'receipts_donation_cash_tax_deductible': '#ctl00_PlaceHolderMain_ucFSDetails_income_td_cash_2',
         'receipts_donation_cash_non_tax_deductible': '#ctl00_PlaceHolderMain_ucFSDetails_income_ntd_cash_2',
         'receipts_donation_cash_total': '#ctl00_PlaceHolderMain_ucFSDetails_income_total_cash_2',
@@ -53,10 +52,9 @@ LAYOUT_FINANCIAL_MAPPING = {
         'balance_funds_liabilities_total': '#ctl00_PlaceHolderMain_ucFSDetails_bs_funds_liabilities_total_2'
     },
     'fy2': {
-        'financial_period': '#ctl00_PlaceHolderMain_gvFinancialInformation > tbody > tr:nth-child(3) > td:nth-child(1)',
-        'receipts_total': '#ctl00_PlaceHolderMain_gvFinancialInformation > tbody > tr:nth-child(3) > td:nth-child(2)',
-        'expenses_total': '#ctl00_PlaceHolderMain_gvFinancialInformation > tbody > tr:nth-child(3) > td:nth-child(3)',
-        'financial_status': '#ctl00_PlaceHolderMain_gvFinancialInformation > tbody > tr:nth-child(3) > td:nth-child(5)',
+        'financial_period': '#ctl00_PlaceHolderMain_ucFSDetails_fy_period_1_0',
+        'receipts_total': '#ctl00_PlaceHolderMain_ucFSDetails_income_total_1',
+        'expenses_total': '#ctl00_PlaceHolderMain_ucFSDetails_expenses_total_1',
         'receipts_donation_cash_tax_deductible': '#ctl00_PlaceHolderMain_ucFSDetails_income_td_cash_1',
         'receipts_donation_cash_non_tax_deductible': '#ctl00_PlaceHolderMain_ucFSDetails_income_ntd_cash_1',
         'receipts_donation_cash_total': '#ctl00_PlaceHolderMain_ucFSDetails_income_total_cash_1',
@@ -96,10 +94,9 @@ LAYOUT_FINANCIAL_MAPPING = {
         'balance_funds_liabilities_total': '#ctl00_PlaceHolderMain_ucFSDetails_bs_funds_liabilities_total_1'
     },
     'fy3': {
-        'financial_period': '#ctl00_PlaceHolderMain_gvFinancialInformation > tbody > tr:nth-child(4) > td:nth-child(1)',
-        'receipts_total': '#ctl00_PlaceHolderMain_gvFinancialInformation > tbody > tr:nth-child(4) > td:nth-child(2)',
-        'expenses_total': '#ctl00_PlaceHolderMain_gvFinancialInformation > tbody > tr:nth-child(4) > td:nth-child(3)',
-        'financial_status': '#ctl00_PlaceHolderMain_gvFinancialInformation > tbody > tr:nth-child(4) > td:nth-child(5)',
+        'financial_period': '#ctl00_PlaceHolderMain_ucFSDetails_fy_period_0_0',
+        'receipts_total': '#ctl00_PlaceHolderMain_ucFSDetails_income_total_0',
+        'expenses_total': '#ctl00_PlaceHolderMain_ucFSDetails_expenses_total_0',
         'receipts_donation_cash_tax_deductible': '#ctl00_PlaceHolderMain_ucFSDetails_income_td_cash_0',
         'receipts_donation_cash_non_tax_deductible': '#ctl00_PlaceHolderMain_ucFSDetails_income_ntd_cash_0',
         'receipts_donation_cash_total': '#ctl00_PlaceHolderMain_ucFSDetails_income_total_cash_0',
